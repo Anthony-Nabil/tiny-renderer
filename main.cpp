@@ -1,29 +1,55 @@
 #include "tgaimage.h"
 #include <algorithm>
 #include <cmath>
+#include "model.h"
+#include "geometry.h"
+#include <vector>
+#include <cmath>
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0,   0,   255);
+Model *model = NULL;
 
 // dimentions of the image 
-const int width = 100;
-const int height = 100;
+const int width = 800;
+const int height = 800;
 
 void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color);
 
 int main(int argc, char** argv) {
-        TGAImage image(height, width, TGAImage::RGB);
-        image.set(50, 50, red);
-        // diagonal line
-        line(15, 15, 65, 65, image, white);
-        line(20, 13, 40, 80, image, red); 
-        line(80, 40, 13, 20, image, red);
+    TGAImage image(height, width, TGAImage::RGB);
+    // image.set(50, 50, red);
+    // diagonal line
+    // line(15, 15, 65, 65, image, white);
+    // line(20, 13, 40, 80, image, red); 
+    // line(80, 40, 13, 20, image, red);
+
+    // check if the user has provided a model file
+    if (2==argc) {
+        model = new Model(argv[1]);
+    } else {
+        model = new Model("obj/african_head.obj");
+    }
+
+
+    for (int i=0; i<model->nfaces(); i++) { 
+        std::vector<int> face = model->face(i); 
+        for (int j=0; j<3; j++) { 
+            Vec3f v0 = model->vert(face[j]); 
+            Vec3f v1 = model->vert(face[(j+1)%3]); 
+            int x0 = (v0.x+1.)*width/2.; 
+            int y0 = (v0.y+1.)*height/2.; 
+            int x1 = (v1.x+1.)*width/2.; 
+            int y1 = (v1.y+1.)*height/2.; 
+            line(x0, y0, x1, y1, image, white); 
+        } 
+    }
 
         
         image.flip_vertically(); // i want to have the origin at the left bottom corner of the image
         image.write_tga_file("output.tga");
+        delete model;
         return 0;
-
 }
 
 // void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) { 
