@@ -179,31 +179,61 @@ void line(int x0, int y0, int x1, int y1, TGAImage& image, TGAColor color) {
     float error2 = 0;
     int y = y0;
 
-    for (int x = x0; x <= x1; x++) {
-        // Set the corresponding pixel on the TGAImage object to the specified color
-        if (steep) {
-            image.set(y, x, color); // if the line is steep, transpose the x and y coordinates since it was swapped earlier
-        } else {
-            image.set(x, y, color);
-        }
+    // calculate the increment value for y
+    const int yincr =  (y1 > y0) ? 1 : -1;
 
-        // error += derror;
 
-        error2 += derror2;
-
-        if (error2 > dx) {
-            y += (y1 > y0) ? 1 : -1;
-            // subtract 1 instead of 0.5 as to restart the error accumulation on every iteration
-            // and prevent cases such as 0.7 where the code will always increment/decrement the y value
-            // making the line have a slope of 1 instead of 0.7 
-            error2 -= dx * 2;
-        }
-
-        // Check if the x and y coordinates are within the bounds of the TGAImage object and set the corresponding pixel if they are
-        if (steep) {
+    if (steep)
+    {
+        for(int x = x0; x <= x1; x++)
+        {
             image.set(y, x, color);
-        } else {
+
+
+            error2 += derror2;
+
+            if (error2 > dx)
+            {
+                y += yincr;
+                error2 -= dx * 2;
+            }
+        }
+    }
+
+    else
+    {
+        for(int x = x0; x <= x1; x++)
+        {
             image.set(x, y, color);
+            error2 += derror2;
+
+            if (error2 > dx)
+            {
+                y += yincr;
+                error2 -= dx * 2;
+            }
         }
     }
 }
+
+
+//     for (int x = x0; x <= x1; x++) {
+//         // Set the corresponding pixel on the TGAImage object to the specified color
+//         if (steep) {
+//             image.set(y, x, color); // if the line is steep, transpose the x and y coordinates since it was swapped earlier
+//         } else {
+//             image.set(x, y, color);
+//         }
+
+//         // accumulate the error
+//         error2 += derror2;
+
+//         if (error2 > dx) {
+//             y += (y1 > y0) ? 1 : -1;
+//             // subtract 1 instead of 0.5 as to restart the error accumulation on every iteration
+//             // and prevent cases such as 0.7 where the code will always increment/decrement the y value
+//             // making the line have a slope of 1 instead of 0.7 
+//             error2 -= dx * 2;
+//         }
+//     }
+// }
